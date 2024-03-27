@@ -1,0 +1,17 @@
+{
+  "name": "@bryopsida/eureka",
+  "version": "0.1.0",
+  "description": "A library for securely discovering other processes in a multicast network",
+  "main": "lib.mjs",
+  "type": "module",
+  "scripts": {
+    "test": "node --test src/*.spec.mjs",
+    "lint": "standard .",
+    "lint:fix": "standard --fix ."
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "standard": "^17.1.0"
+  }
+}
