@@ -5,8 +5,9 @@ import { ok } from 'node:assert'
 const password = 'password'
 const salt = 'salt'
 const context = Buffer.from('open context')
-const CIPHER_TEXT = ''
+const CIPHER_TEXT = Buffer.from('ZyKpbEfx2Suqp3ad5p3HOT2Fvfvm6A0us8rjkxstxrY=', 'base64')
 const PLAIN_TEXT = 'TEST'
+const UNAUTHENTICATED_ERROR = 'Unsupported state or unable to authenticate data'
 
 describe('EurekaCrypto', () => {
   describe('decrypt()', () => {
@@ -22,6 +23,8 @@ describe('EurekaCrypto', () => {
         err = e
       }
       ok(err != null)
+      ok(err instanceof Error)
+      ok(err.message === UNAUTHENTICATED_ERROR)
     })
     it('should throw when context is wrong', async () => {
       const crypto = new EurekaCrypto({
@@ -35,13 +38,16 @@ describe('EurekaCrypto', () => {
         err = e
       }
       ok(err != null)
+      ok(err instanceof Error)
+      ok(err.message === UNAUTHENTICATED_ERROR)
     })
     it('should decrypt successfully', async () => {
       const crypto = new EurekaCrypto({
         password,
         salt
       })
-      const plainText = await crypto.decrypt(CIPHER_TEXT, context)
+      const plainTextBytes = await crypto.decrypt(CIPHER_TEXT, context)
+      const plainText = plainTextBytes.toString('utf8')
       ok(plainText === PLAIN_TEXT)
     })
   })
@@ -52,7 +58,8 @@ describe('EurekaCrypto', () => {
         salt
       })
       const cipher = await crypto.encrypt(PLAIN_TEXT, context)
-      const plainText = await crypto.decrypt(cipher, context)
+      const plainTextBytes = await crypto.decrypt(cipher, context)
+      const plainText = plainTextBytes.toString('utf8')
       ok(plainText === PLAIN_TEXT)
     })
   })
