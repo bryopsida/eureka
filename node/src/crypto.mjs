@@ -2,8 +2,8 @@ import { createDecipheriv, createCipheriv, randomBytes, scryptSync } from 'crypt
 
 export class EurekaCrypto {
   constructor (props) {
-    if (!props.password || props.password == '') throw new Error('props.password must be provided in EurekaCrypto constructor!')
-    if (!props.salt || props.salt == '') throw new Error('props.salt must be provided in EurekaCrypto constructor!')
+    if (!props.password || props.password === '') throw new Error('props.password must be provided in EurekaCrypto constructor!')
+    if (!props.salt || props.salt === '') throw new Error('props.salt must be provided in EurekaCrypto constructor!')
     // take the shared key and run it through scrypt
     // use https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html
     // to set params

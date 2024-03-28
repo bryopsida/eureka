@@ -4,6 +4,6 @@ import { EurekaServer } from './transport.mjs'
 
 export class Eureka extends EventEmitter {
   constructor (props) {
-
+    super()
   }
 }
