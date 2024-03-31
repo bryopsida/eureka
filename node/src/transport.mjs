@@ -130,10 +130,10 @@ export class EurekaServer extends EventEmitter {
 
   async messageHandler (msg, rinfo) {
     try {
-      const plainText = await this.crypto.decrypt(msg, Buffer.from(`${rinfo.ip}:${rinfo.port}`))
+      const plainText = await this.crypto.decrypt(msg, Buffer.from(`${rinfo.address}:${rinfo.port}`))
       this.emit('message', plainText)
     } catch (err) {
-      this.emit(err)
+      this.emit('error', err)
     }
   }
 
