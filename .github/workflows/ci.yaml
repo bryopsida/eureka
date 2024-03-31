@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+    branches: ['main']
+    paths:
+      - 'node/*'
+  pull_request:
+    branches: ['main']
+    paths:
+      - 'node/*'
+jobs:
+  validate-node:
+    name: 'Validate'
+    uses: curium-rocks/flows/.github/workflows/node-ts.yml@main
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+    with:
+      continue-on-prod-vulns: true
+      node_versions: '{"node-version": ["20.x"]}'
+      working-dir: 'node/'
