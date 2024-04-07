@@ -1,0 +1,24 @@
+name: Release
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        type: string
+        required: true
+        description: Release tag and name
+jobs:
+  release-node:
+    name: 'Release'
+    uses: curium-rocks/flows/.github/workflows/node-ts-release.yml@main
+    permissions:
+      contents: write
+      actions: read
+      security-events: write
+    with:
+      node_versions: '20.x'
+      working-dir: 'node/'
+      continue-on-prod-vulns: true
+      publish-docs: false
+      tag: ${{ inputs.tag }}
+    secrets:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
