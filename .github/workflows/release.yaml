@@ -15,7 +15,7 @@ jobs:
       actions: read
       security-events: write
     with:
-      node_versions: '20.x'
+      node_version: '20.x'
       working-dir: 'node/'
       continue-on-prod-vulns: true
       publish-docs: false
