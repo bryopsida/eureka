@@ -10,11 +10,13 @@
   "scripts": {
     "test": "node --test src/*.spec.mjs",
     "lint": "standard .",
-    "lint:fix": "standard --fix ."
+    "lint:fix": "standard --fix .",
+    "build:docs": "jsdoc -c jsdoc.json"
   },
   "author": "",
   "license": "UNLICENSE",
   "devDependencies": {
+    "docdash": "^2.0.2",
     "jsdoc": "^4.0.2",
     "standard": "^17.1.0"
   }

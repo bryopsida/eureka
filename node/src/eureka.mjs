@@ -2,7 +2,24 @@ import EventEmitter from 'node:events'
 import { EurekaCrypto } from './crypto.mjs'
 import { EurekaServer } from './transport.mjs'
 
+  /**
+   * @type EurekaServerOptions
+   */
+
+  /**
+   * @type EurekaCryptoOptions
+   */
+
+  /**
+   * 
+   * @type EurekaOptions
+   * @property {EurekaServerOptions} server options for server module
+   * @property {EurekaCryptoOptions} crypto options for crypto module
+   * @property {number} broadcastInterval time between message broadcasts in milliseconds
+   * @property {any} messageData the message that will be broadcast at the set interval, must be serializable.
+   */
 export class Eureka extends EventEmitter {
+
   /**
    * Create a Eurkea instance, this intended to facilitate discovery of
    * other instances and share information between instances in a secure way.
@@ -28,7 +45,7 @@ export class Eureka extends EventEmitter {
    * You may override the crypto object used to protect and authenticate the payloads, to do so provide
    * props.crypto.instance. If you do not the, a default crypto instance will be created which uses Scrypt and ChaCha20
    *
-   * @param {*} props
+   * @param {EurekaOptions} props
    */
   constructor (props) {
     super()

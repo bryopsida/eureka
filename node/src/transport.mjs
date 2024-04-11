@@ -2,6 +2,9 @@ import { EventEmitter } from 'node:events'
 import { createSocket } from 'node:dgram'
 import { networkInterfaces } from 'node:os'
 
+/**
+ * Default server class
+ */
 export class EurekaServer extends EventEmitter {
   constructor (props) {
     super()
@@ -128,6 +131,12 @@ export class EurekaServer extends EventEmitter {
     }
   }
 
+  /**
+   * Takes the raw bytes on receipt from a remote source, decrypts the bytes to plaintext and then 
+   * emits a 'message' event with the plaintext data.
+   * @param {*} msg encrypted bytes from peer
+   * @param {*} rinfo remote information about peer, used to generate the context string requierd to decrypt the msg
+   */
   async messageHandler (msg, rinfo) {
     try {
       const plainText = await this.crypto.decrypt(msg, Buffer.from(`${rinfo.address}:${rinfo.port}`))
@@ -136,7 +145,11 @@ export class EurekaServer extends EventEmitter {
       this.emit('error', err)
     }
   }
-
+  /**
+   * Send a message to the multicast groups, message will be encrypted before transmission
+   * @param {BinaryLike | string} msg plaintext message that will be sent to multicast groups
+   * @return {Promise<void>}
+   */
   async sendMessage (msg) {
     try {
       for (const group of this.multicastGroups) {
@@ -166,6 +179,11 @@ export class EurekaServer extends EventEmitter {
     this.emit('error', err)
   }
 
+  /**
+   * Clean up the server resources, if this is not called handles may be left open that
+   * prevent the process from exiting
+   * @returns {void}
+   */
   closeServer () {
     clearInterval(this.refreshInterfacesTimer)
     this.removeHandlers()

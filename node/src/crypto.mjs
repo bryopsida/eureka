@@ -1,5 +1,8 @@
 import { createDecipheriv, createCipheriv, randomBytes, scryptSync } from 'crypto'
 
+/**
+ * Default cryptography class
+ */
 export class EurekaCrypto {
   constructor (props) {
     if (!props.password || props.password === '') throw new Error('props.password must be provided in EurekaCrypto constructor!')
@@ -15,7 +18,7 @@ export class EurekaCrypto {
    * Decrypt the cipher text with the provided context
    * @param {Buffer} ciphertext
    * @param {Buffer} context
-   * @returns Buffer
+   * @returns {Buffer}
    */
   async decrypt (ciphertext, context) {
     // ciphertext is the encrypted bits
@@ -43,6 +46,12 @@ export class EurekaCrypto {
     return Buffer.concat([decipher.update(crypt), decipher.final()])
   }
 
+  /**
+   * 
+   * @param {BinaryLike} plaintext 
+   * @param {BinaryLike} context 
+   * @returns {Buffer}
+   */
   async encrypt (plaintext, context) {
     // take the plaintext/payload
     // create a random iv
