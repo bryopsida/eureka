@@ -58,6 +58,7 @@ export class Eureka extends EventEmitter {
 
   /**
    * Broadcast the message to all specified multicast groups
+   * @returns {Promise<void>}
    */
   async broadcast () {
     try {
@@ -71,6 +72,7 @@ export class Eureka extends EventEmitter {
   /**
    * Handler for when server is ready, this triggers an immediate
    * broadcast when server is ready instead of waiting for next interval.
+   * @returns {void}
    */
   onReady () {
     this._ready = true
@@ -81,6 +83,10 @@ export class Eureka extends EventEmitter {
     this.emit('ready')
   }
 
+  /**
+   * Check if the server is ready
+   * @returns {boolean} true if the server is ready
+   */
   isReady () {
     return this._ready
   }
@@ -187,6 +193,7 @@ export class Eureka extends EventEmitter {
   /**
    * Send a one time custom message
    * @param {any} msg
+   * @returns {Promise<void>}
    */
   async sendMessage (msg) {
     const data = Buffer.from(JSON.stringify(msg))
