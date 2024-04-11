@@ -1,17 +1,21 @@
 {
   "name": "@bryopsida/eureka",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A library for securely discovering other processes in a multicast network",
   "main": "lib.mjs",
   "type": "module",
+  "homepage": "https://github.com/bryopsida/eureka/tree/main/node",
+  "bugs": "https://github.com/bryopsida/eureka/issues",
+  "repository": "github:bryopsida/eureka",
   "scripts": {
     "test": "node --test src/*.spec.mjs",
     "lint": "standard .",
     "lint:fix": "standard --fix ."
   },
   "author": "",
-  "license": "MIT",
+  "license": "UNLICENSE",
   "devDependencies": {
+    "jsdoc": "^4.0.2",
     "standard": "^17.1.0"
   }
 }
