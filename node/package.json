@@ -1,6 +1,6 @@
 {
   "name": "@bryopsida/eureka",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A library for securely discovering other processes in a multicast network",
   "main": "lib.mjs",
   "type": "module",
