@@ -41,4 +41,7 @@ describe('EurekaServer', () => {
       instance2.closeServer()
     }
   })
+  it('should fragment and reassemble messages larger than MTU', async () => {
+    fail('not implemented')
+  })
 })
