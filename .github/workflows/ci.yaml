@@ -27,6 +27,9 @@ jobs:
       working-dir: 'node/'
       sonar-enabled: false
   publish-docs:
+    permissions:
+      pages: write
+      id-token: write
     needs:
       - validate-node
     uses: curium-rocks/flows/.github/workflows/npm-publish-docs.yml@main
