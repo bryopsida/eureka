@@ -55,6 +55,10 @@ export class EurekaServer extends EventEmitter {
     if (props.chunkSpacing) {
       this.#chunkSpacing = props.chunkSpacing
     }
+
+    if (props.chunkSize) {
+      this.#chunkSize = props.chunkSize
+    }
   }
 
   #purgeExpiredChunks () {
