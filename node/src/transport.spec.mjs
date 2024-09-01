@@ -1,6 +1,7 @@
 import { fail, ok } from 'node:assert'
 import { describe, it } from 'node:test'
 import { EurekaServer } from './transport.mjs'
+import { randomBytes } from 'node:crypto'
 
 describe('EurekaServer', () => {
   it('should notify listeners when data from peer is received', async () => {
@@ -9,7 +10,9 @@ describe('EurekaServer', () => {
       encrypt: (plainText) => Promise.resolve(Buffer.from(plainText)),
       decrypt: (buffer) => Promise.resolve(buffer.toString('utf8')),
       getAlgorithm: () => 'chacha20-poly1305',
-      getKeyId: () => 0
+      getKeyId: () => 0,
+      sign: () => Buffer.from(randomBytes(32)),
+      verify: () => true
     }
     const errors = []
     const instance1 = new EurekaServer({

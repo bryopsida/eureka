@@ -1,9 +1,10 @@
 import { EventEmitter } from 'node:events'
 import { createSocket } from 'node:dgram'
 import { networkInterfaces } from 'node:os'
-import { buildHeader, decodeHeader } from './header.mjs'
+import { buildHeader, decodeHeader, getHeaderSize, signHeader, getSignatureSize } from './header.mjs'
 
 export class EurekaServer extends EventEmitter {
+  #msgId = 0
   constructor (props) {
     super()
     this.logger = props.logger
@@ -141,9 +142,21 @@ export class EurekaServer extends EventEmitter {
     }
   }
 
+  getMessageId () {
+    this.#msgId = (this.#msgId + 1) & 0xFFFFFFFF
+  }
+
   async messageHandler (msg, rinfo) {
     try {
-      const headerBuffer = msg.subarray(0, 32)
+      const headerSize = getHeaderSize()
+      const headerBuffer = msg.subarray(0, headerSize)
+      const endOfHeaderContents = getHeaderSize() - getSignatureSize()
+      const headerContents = headerBuffer.subarray(0, endOfHeaderContents)
+      const signature = headerBuffer.subarray(endOfHeaderContents)
+      // verify the signature before any further processing
+      if (!this.crypto.verify(headerContents, signature)) {
+        throw new Error('Invalid signature!')
+      }
       const header = decodeHeader(headerBuffer)
       if (header.algorithm !== this.crypto.getAlgorithm()) {
         throw new Error('Algorithm mismatch!')
@@ -151,7 +164,7 @@ export class EurekaServer extends EventEmitter {
       if (header.keyId !== this.crypto.getKeyId()) {
         throw new Error('Key ID mismatch!')
       }
-      const payload = msg.subarray(32)
+      const payload = msg.subarray(headerSize)
       const plainText = await this.crypto.decrypt(payload, Buffer.from(`${rinfo.address}:${rinfo.port}`))
       this.emit('message', plainText)
     } catch (err) {
@@ -174,9 +187,11 @@ export class EurekaServer extends EventEmitter {
             messageType: 'BEACON',
             messageLength: encryptedMessage.length,
             algorithm: this.crypto.getAlgorithm(),
-            keyId: this.crypto.getKeyId()
+            keyId: this.crypto.getKeyId(),
+            messageId: this.getMessageId()
           })
-          this.socket.send(Buffer.concat([headerBuffer, encryptedMessage]), this.port, group, (err) => {
+          const signedHeader = signHeader(headerBuffer, this.crypto)
+          this.socket.send(Buffer.concat([signedHeader, encryptedMessage]), this.port, group, (err) => {
             if (err) {
               this.emit('error', err)
             }

@@ -1,4 +1,4 @@
-import { createDecipheriv, createCipheriv, randomBytes, scryptSync, pbkdf2Sync, getFips } from 'crypto'
+import { createDecipheriv, createCipheriv, randomBytes, scryptSync, pbkdf2Sync, getFips, createHmac } from 'crypto'
 
 /**
  * @typedef {Object} EurekaCryptoProps
@@ -75,6 +75,35 @@ export class EurekaCrypto {
     })
     decipher.setAuthTag(authTag)
     return Buffer.concat([decipher.update(crypt), decipher.final()])
+  }
+
+  /**
+   * Verify the contents signature match
+   * @param {Buffer} buffer
+   * @param {Buffer} signature
+   * @returns {boolean}
+   */
+  verify (buffer, signature) {
+    // verify the signature
+    // return true if valid
+    // return false if invalid
+    const hmac = createHmac('sha256', this.#key)
+    hmac.update(buffer)
+    const hmacDigest = hmac.digest()
+    return hmacDigest.equals(signature)
+  }
+
+  /**
+   *
+   * @param {Buffer} buffer
+   * @returns {Buffer} 16 byte signature
+   */
+  sign (buffer) {
+    // sign the buffer
+    // return the signature
+    const hmac = createHmac('sha256', this.#key)
+    hmac.update(buffer)
+    return hmac.digest()
   }
 
   #getIvLength () {
