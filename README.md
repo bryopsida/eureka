@@ -19,3 +19,7 @@ they may send a message using the old key informing the thing to move to the new
 ## How do I use it?
 
 Two implementations will exist, Node.JS, and Golang, the Node.JS will be available in npm, the golang implementation will be available as a gomodule.
+
+### JSDoc Page
+
+You can find a hosted JSDoc page of the latest release [here](https://bryopsida.github.io/eureka/)
