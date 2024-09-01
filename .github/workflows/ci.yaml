@@ -34,7 +34,7 @@ jobs:
       - validate-node
     uses: curium-rocks/flows/.github/workflows/npm-publish-docs.yml@main
     with:
-      publish: true
+      publish: false
       node_version: '22.x'
       build_task: 'build:docs'
       path: 'docs'
