@@ -9,6 +9,8 @@ import { getMessageType, getMessageTypeId } from './message-type.mjs'
  * @property {number} keyId
  * @property {messageId} messageId
  * @property {Buffer} signature
+ * @property {number} chunkSize
+ * @property {number} chunkIndex
  */
 
 const HEADER_SIZE = 64
@@ -35,6 +37,8 @@ export function buildHeader (props) {
   buffer.writeUInt8(props.algorithm === 'chacha20-poly1305' ? 0 : 1, 6)
   buffer.writeUInt32BE(props.keyId, 7)
   buffer.writeUInt32BE(props.messageId, 11)
+  buffer.writeUInt16BE(props.chunkSize, 15)
+  buffer.writeUInt16BE(props.chunkIndex, 17)
   return buffer
 }
 
@@ -75,6 +79,8 @@ export function decodeHeader (buffer) {
     messageLength: buffer.readUInt32BE(2),
     algorithm: buffer.readUInt8(6) === 0 ? 'chacha20-poly1305' : 'aes-256-gcm',
     keyId: buffer.readUInt32BE(7),
-    messageId: buffer.readUInt32BE(11)
+    messageId: buffer.readUInt32BE(11),
+    chunkSize: buffer.readUInt16BE(15),
+    chunkIndex: buffer.readUInt16BE(17)
   }
 }
