@@ -1,14 +1,48 @@
-import { createDecipheriv, createCipheriv, randomBytes, scryptSync } from 'crypto'
+import { createDecipheriv, createCipheriv, randomBytes, scryptSync, pbkdf2Sync, getFips } from 'crypto'
+
+/**
+ * @typedef {Object} EurekaCryptoProps
+ * @property {string} password
+ * @property {string} salt
+ * @property {string} algorithm
+ * @property {number} keyId
+ * @property {'pbkdf2' | 'scrypt'} kdfFunction
+ */
 
 export class EurekaCrypto {
+  #algorithm = null
+  #key = null
+  #isFips = false
+
   constructor (props) {
     if (!props.password || props.password === '') throw new Error('props.password must be provided in EurekaCrypto constructor!')
     if (!props.salt || props.salt === '') throw new Error('props.salt must be provided in EurekaCrypto constructor!')
+    this.#isFips = getFips()
+
+    if ((props.kdfFunction === 'scrypt' || props.kdfFunction == null) && !this.#isFips) {
+      this.#key = this.#deriveScryptKey(props.password, props.salt)
+    } else {
+      this.#key = this.#derivePbkdf2Key(props.password, props.salt)
+    }
+    if ((props.algorithm === 'chacha20-poly1305' || props.algorithm == null) && !this.#isFips) {
+      this.#algorithm = 'chacha20-poly1305'
+    } else {
+      this.#algorithm = 'aes-256-gcm'
+    }
+  }
+
+  #deriveScryptKey (password, salt) {
     // take the shared key and run it through scrypt
     // use https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html
     // to set params
     // default node params exceed owasp suggestions
-    this.key = scryptSync(props.password, props.salt, 32)
+    return scryptSync(password, salt, 32)
+  }
+
+  #derivePbkdf2Key (password, salt) {
+    // take the shared key and run it through pbkdf2
+    // use https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html
+    return pbkdf2Sync(password, salt, 310000, 32, 'sha256')
   }
 
   /**
@@ -27,15 +61,15 @@ export class EurekaCrypto {
     // detect modification
     //
     // once decrypted whatever it is, is handed off to the caller for further vetting
-    const AUTH_TAG_START = 0
-    const AUTH_TAG_END = 16
-    const IV_START = 16
-    const IV_END = 28
-    const CRYPTO_START = 28
+    const AUTH_TAG_START = this.#getAuthTagStart()
+    const AUTH_TAG_END = this.#getAuthTagEnd()
+    const IV_START = this.#getIvStart()
+    const IV_END = this.#getIvEnd()
+    const CRYPTO_START = this.#getCryptoStart()
     const authTag = ciphertext.subarray(AUTH_TAG_START, AUTH_TAG_END)
     const iv = ciphertext.subarray(IV_START, IV_END)
     const crypt = ciphertext.subarray(CRYPTO_START)
-    const decipher = createDecipheriv('chacha20-poly1305', this.key, iv)
+    const decipher = createDecipheriv(this.getAlgorithm(), this.#key, iv)
     decipher.setAAD(context, {
       encoding: 'utf8'
     })
@@ -43,8 +77,53 @@ export class EurekaCrypto {
     return Buffer.concat([decipher.update(crypt), decipher.final()])
   }
 
+  #getIvLength () {
+    switch (this.#algorithm) {
+      case 'chacha20-poly1305':
+        return 12
+      case 'aes-256-gcm':
+        return 16
+      default:
+        throw new Error('Unsupported algorithm')
+    }
+  }
+
+  #getAuthTagStart () {
+    return 0
+  }
+
+  #getAuthTagEnd () {
+    return 16
+  }
+
+  #getIvStart () {
+    return 16
+  }
+
+  #getIvEnd () {
+    switch (this.#algorithm) {
+      case 'chacha20-poly1305':
+        return 28
+      case 'aes-256-gcm':
+        return 32
+      default:
+        throw new Error('Unsupported algorithm')
+    }
+  }
+
+  #getCryptoStart () {
+    switch (this.#algorithm) {
+      case 'chacha20-poly1305':
+        return 28
+      case 'aes-256-gcm':
+        return 32
+      default:
+        throw new Error('Unsupported algorithm')
+    }
+  }
+
   getAlgorithm () {
-    return 'chacha20-poly1305'
+    return this.#algorithm
   }
 
   getKeyId () {
@@ -57,8 +136,8 @@ export class EurekaCrypto {
     // use the context to generate a auth tag
     // encrypt it
     // return cipher text to caller for it to do what it needs to do
-    const iv = randomBytes(12)
-    const cipher = createCipheriv('chacha20-poly1305', this.key, iv)
+    const iv = randomBytes(this.#getIvLength())
+    const cipher = createCipheriv(this.getAlgorithm(), this.#key, iv)
     cipher.setAAD(context, {
       encoding: 'utf8'
     })

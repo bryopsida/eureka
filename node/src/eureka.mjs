@@ -2,6 +2,31 @@ import EventEmitter from 'node:events'
 import { EurekaCrypto } from './crypto.mjs'
 import { EurekaServer } from './transport.mjs'
 
+/**
+ * @typedef {Object} EurekaServerProps
+ * @property {'udp4' | 'udp6' | undefined} type
+ * @property {string[] | undefined} multicastGroups
+ * @property {string[] | undefined} interfaces
+ * @property {number | undefined} port
+ */
+
+/**
+ * @typedef {Object} EurekaCryptoProps
+ * @property {string} password
+ * @property {string} salt
+ * @property {'chacha20-poly1305' | 'aes-256-gcm' | undefined} algorithm
+ * @property {number | undefined} keyId
+ * @property {'scrypt' | 'pbkdf2' | undefined} kdfFunction
+ *
+ */
+
+/**
+ * @typedef {Object} EurekaProps
+ * @property {EurekaServerProps} server
+ * @property {EurekaCryptoProps} crypto
+ * @property {typeof console} logger
+ */
+
 export class Eureka extends EventEmitter {
   /**
    * Create a Eurkea instance, this intended to facilitate discovery of
@@ -28,7 +53,7 @@ export class Eureka extends EventEmitter {
    * You may override the crypto object used to protect and authenticate the payloads, to do so provide
    * props.crypto.instance. If you do not the, a default crypto instance will be created which uses Scrypt and ChaCha20
    *
-   * @param {*} props
+   * @param {EurekaProps} props
    */
   constructor (props) {
     super()
