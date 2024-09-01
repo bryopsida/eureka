@@ -4,11 +4,12 @@ import { EurekaServer } from './transport.mjs'
 
 describe('EurekaServer', () => {
   it('should notify listeners when data from peer is received', async () => {
-    const identityFunc = (i) => Promise.resolve(i)
     const testMsg = 'Hello other eureka thing!'
     const notCryptoCrypto = {
-      encrypt: identityFunc,
-      decrypt: identityFunc
+      encrypt: (plainText) => Promise.resolve(Buffer.from(plainText)),
+      decrypt: (buffer) => Promise.resolve(buffer.toString('utf8')),
+      getAlgorithm: () => 'chacha20-poly1305',
+      getKeyId: () => 0
     }
     const errors = []
     const instance1 = new EurekaServer({
