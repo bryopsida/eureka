@@ -15,12 +15,20 @@ import { Eureka } from '@bryopsida/eureka'
 const password = randomBytes(32).toString('utf8')
 const salt = randomBytes(16).toString('utf8')
 const id = randomUUID()
+const algorithm = 'aes-256-gcm' // or 'chacha20-poly1305'
+const kdfFunction = 'pbkdf2' // or 'scrypt'
+const chunkSize = 1500 // amount of data passed to send at one time including header, decrease if you encounter EMSGSIZE errors
+const chunkSpacing = 25 // milliseconds in between chunk send calls
 
 const eureka = new Eureka({
     logger: console,
     crypto: {
         salt,
-        password
+        password,
+        algorithm,
+        kdfFunction,
+        chunkSize,
+        chunkSpacing
     },
     messageData: {
         id,

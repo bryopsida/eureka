@@ -8,6 +8,8 @@ import { EurekaServer } from './transport.mjs'
  * @property {string[] | undefined} multicastGroups
  * @property {string[] | undefined} interfaces
  * @property {number | undefined} port
+ * @property {number | undefined} chunkSize
+ * @property {number | undefined} chunkSpacing
  */
 
 /**
