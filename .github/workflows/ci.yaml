@@ -5,11 +5,13 @@ on:
     branches: ['main']
     paths:
       - 'node/*'
+      - 'node/**/*'
       - '.github/workflows/ci.yaml'
   pull_request:
     branches: ['main']
     paths:
       - 'node/*'
+      - 'node/**/*'
       - '.github/workflows/ci.yaml'
 jobs:
   validate-node:
