@@ -41,7 +41,7 @@ export class Eureka extends EventEmitter {
     this.messageBroadcastData = Buffer.from(JSON.stringify(props.messageData))
     this.logger = props.logger
 
-    if (props.crypto && props.crypto.instance) {
+    if (props.crypto?.instance) {
       this.crypto = props.crypto.instance
     } else {
       this.validatePropsForCrypto(props)

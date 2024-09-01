@@ -1,6 +1,7 @@
 import { EventEmitter } from 'node:events'
 import { createSocket } from 'node:dgram'
 import { networkInterfaces } from 'node:os'
+import { buildHeader, decodeHeader } from './header.mjs'
 
 export class EurekaServer extends EventEmitter {
   constructor (props) {
@@ -45,15 +46,27 @@ export class EurekaServer extends EventEmitter {
     this.refreshInterfacesTimer = setInterval(this.refreshCachedInterfaces.bind(this), 60000)
   }
 
+  /**
+   * Determines the ip family of the server and finds compatible interfaces
+   * @returns {string} normalized to ipv4 or ipv6
+   */
   getIpFamiliy () {
     return this.type === 'udp4' ? 'ipv4' : 'ipv6'
   }
 
+  /**
+   * Check if the iface family type is compatible with the server type
+   * @param {*} iface
+   * @returns {boolean}
+   */
   ipFamiliyMatches (iface) {
     const ipFam = this.getIpFamiliy()
     return ipFam.toLowerCase() === iface.family.toLowerCase()
   }
 
+  /**
+   * Refresh the available interfaces, the cached interface list is used to broadcast on all compatible interfaces
+   */
   refreshCachedInterfaces () {
     this.interfaceCache = networkInterfaces()
   }
@@ -130,7 +143,16 @@ export class EurekaServer extends EventEmitter {
 
   async messageHandler (msg, rinfo) {
     try {
-      const plainText = await this.crypto.decrypt(msg, Buffer.from(`${rinfo.address}:${rinfo.port}`))
+      const headerBuffer = msg.subarray(0, 32)
+      const header = decodeHeader(headerBuffer)
+      if (header.algorithm !== this.crypto.getAlgorithm()) {
+        throw new Error('Algorithm mismatch!')
+      }
+      if (header.keyId !== this.crypto.getKeyId()) {
+        throw new Error('Key ID mismatch!')
+      }
+      const payload = msg.subarray(32)
+      const plainText = await this.crypto.decrypt(payload, Buffer.from(`${rinfo.address}:${rinfo.port}`))
       this.emit('message', plainText)
     } catch (err) {
       this.emit('error', err)
@@ -145,8 +167,16 @@ export class EurekaServer extends EventEmitter {
           // we use the interface cache to fetch the ip so we can create an appropriate context buffer for encryption
           const ip = this.getIpForInterface(iface)
           this.socket.setMulticastInterface(ip)
+
           const encryptedMessage = await this.crypto.encrypt(msg, Buffer.from(`${ip}:${this.port}`))
-          this.socket.send(encryptedMessage, this.port, group, (err) => {
+          const headerBuffer = buildHeader({
+            version: 0,
+            messageType: 'BEACON',
+            messageLength: encryptedMessage.length,
+            algorithm: this.crypto.getAlgorithm(),
+            keyId: this.crypto.getKeyId()
+          })
+          this.socket.send(Buffer.concat([headerBuffer, encryptedMessage]), this.port, group, (err) => {
             if (err) {
               this.emit('error', err)
             }

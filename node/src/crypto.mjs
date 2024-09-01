@@ -43,6 +43,14 @@ export class EurekaCrypto {
     return Buffer.concat([decipher.update(crypt), decipher.final()])
   }
 
+  getAlgorithm () {
+    return 'chacha20-poly1305'
+  }
+
+  getKeyId () {
+    return 0
+  }
+
   async encrypt (plaintext, context) {
     // take the plaintext/payload
     // create a random iv
