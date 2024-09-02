@@ -23,10 +23,20 @@ import { EurekaServer } from './transport.mjs'
  */
 
 /**
+ * @typedef {Object} Logger
+ * @property {function} log
+ * @property {function} info
+ * @property {function} error
+ * @property {function} warn
+ * @property {function} debug
+ * @property {function} trace
+ */
+
+/**
  * @typedef {Object} EurekaProps
  * @property {EurekaServerProps} server
  * @property {EurekaCryptoProps} crypto
- * @property {typeof console} logger
+ * @property {Logger} logger
  */
 
 export class Eureka extends EventEmitter {

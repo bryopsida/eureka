@@ -26,3 +26,16 @@ jobs:
       node_versions: '["20.x"]'
       working-dir: 'node/'
       sonar-enabled: false
+  publish-docs:
+    permissions:
+      pages: write
+      id-token: write
+    needs:
+      - validate-node
+    uses: curium-rocks/flows/.github/workflows/npm-publish-docs.yml@main
+    with:
+      publish: false
+      node_version: '22.x'
+      build_task: 'build:docs'
+      path: 'docs'
+      working_dir: 'node'

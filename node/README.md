@@ -60,3 +60,7 @@ UDP multicasting is used to send messages to all hosts in the same network segme
 You can adjust the multicast group by setting `opts.server.multicastGroups[]` to the set of multicast groups you would like to use. The default set is `['224.0.0.1']` on port `515151`.
 
 To provide security the messages are encrypted with `ChaCha20-poly1305` using the `IP:PORT` of the sender as the additional authentication data.
+
+# Hosted JSDoc page
+
+You can find a hosted JSDoc page of the latest release [here](https://bryopsida.github.io/eureka/)

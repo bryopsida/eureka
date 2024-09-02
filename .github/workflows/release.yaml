@@ -22,3 +22,16 @@ jobs:
       tag: ${{ inputs.tag }}
     secrets:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+  publish-docs:
+    permissions:
+      pages: write
+      id-token: write
+    needs:
+      - release-node
+    uses: curium-rocks/flows/.github/workflows/npm-publish-docs.yml@main
+    with:
+      publish: true
+      node_version: '22.x'
+      build_task: 'build:docs'
+      path: 'docs'
+      working_dir: 'node'
